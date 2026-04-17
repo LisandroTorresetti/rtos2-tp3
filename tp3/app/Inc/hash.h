@@ -1,6 +1,8 @@
 #ifndef GRUPO_1_TP_3_HASH_H
 #define GRUPO_1_TP_3_HASH_H
 #include <stdint.h>
+
+#include "cmsis_os.h"
 #include "uthash.h"
 
 #define REQUEST_ID_AMOUNT 8
@@ -14,13 +16,13 @@ typedef struct {
 #else
     uint16_t count;
 #endif
-
+    xSemaphoreHandle mutex;
     UT_hash_handle hh;
 } PriorityItem;
 
 // API
-void phash_add(int priority, uint16_t requestId);
-PriorityItem* phash_find(int priority);
-void phash_delete(int priority);
+void hashAdd(int priority, uint16_t requestId);
+PriorityItem* hashFind(int priority);
+void hashDeleteItem(int priority);
 void phash_clear(void);
 #endif //GRUPO_1_TP_3_HASH_H

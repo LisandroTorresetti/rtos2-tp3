@@ -27,7 +27,7 @@ static void freeItem(const PriorityItem *item) {
     }
 }
 
-void phash_add(int priority, uint16_t requestId) {
+void hashAdd(int priority, uint16_t requestId) {
     PriorityItem *item;
 
     HASH_FIND_INT(table, &priority, item);
@@ -35,10 +35,13 @@ void phash_add(int priority, uint16_t requestId) {
     if (item == NULL) {
         item = sallocItem();
         if (item == NULL) return; // ToDO handle scenario for item not being able to be inserted in the hash
+        item->mutex = xSemaphoreCreateMutex();
+        if (item->mutex == NULL) return; // ToDO handle scenario for item not being able to be inserted in the hash
 
         item->priority = priority;
         HASH_ADD_INT(table, priority, item);
     }
+    xSemaphoreTake(item->mutex, portMAX_DELAY);
 
     if (item->count < REQUEST_ID_AMOUNT) {
         item->requestId[item->count++] = requestId;
@@ -48,21 +51,26 @@ void phash_add(int priority, uint16_t requestId) {
         }
         item->requestId[REQUEST_ID_AMOUNT - 1] = requestId;
     }
+    xSemaphoreGive(item->mutex);
 }
 
-PriorityItem* phash_find(const int priority) {
+PriorityItem* hashFind(const int priority) {
     PriorityItem *item;
     HASH_FIND_INT(table, &priority, item);
     return item;
 }
 
-void phash_delete(const int priority) {
+void hashDeleteItem(const int priority) {
     PriorityItem *item;
 
     HASH_FIND_INT(table, &priority, item);
 
     if (item != NULL) {
+        SemaphoreHandle_t mutex = item->mutex;
+        xSemaphoreTake(mutex, portMAX_DELAY);
         HASH_DEL(table, item);
         freeItem(item);
+        xSemaphoreGive(mutex);
+        vSemaphoreDelete(mutex); // We have to release before deleting for rtos purposes
     }
 }
