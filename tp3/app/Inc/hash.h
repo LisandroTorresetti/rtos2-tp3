@@ -4,6 +4,7 @@
 
 #include "cmsis_os.h"
 #include "uthash.h"
+#include "error.h"
 
 #define REQUEST_ID_AMOUNT 8
 #define MAX_ITEMS 32
@@ -24,5 +25,5 @@ typedef struct {
 void hashAdd(int priority, uint16_t requestId);
 PriorityItem* hashFind(int priority);
 void hashDeleteItem(int priority);
-void phash_clear(void);
+app_err_t hashInit(void);
 #endif //GRUPO_1_TP_3_HASH_H

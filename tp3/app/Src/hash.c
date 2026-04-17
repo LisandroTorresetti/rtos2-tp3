@@ -6,7 +6,8 @@
 static PriorityItem pool[MAX_ITEMS];
 static bool used[MAX_ITEMS];
 
-static PriorityItem *table = NULL;
+static PriorityItem *table = NULL; // This will be managed later by utash, null table = handled there
+static xSemaphoreHandle writeDeleteMutex = NULL;
 
 static PriorityItem* sallocItem(void) {
     for (int i = 0; i < MAX_ITEMS; i++) {
@@ -28,6 +29,7 @@ static void freeItem(const PriorityItem *item) {
 }
 
 void hashAdd(int priority, uint16_t requestId) {
+    xSemaphoreTake(writeDeleteMutex, portMAX_DELAY);
     PriorityItem *item;
 
     HASH_FIND_INT(table, &priority, item);
@@ -52,6 +54,7 @@ void hashAdd(int priority, uint16_t requestId) {
         item->requestId[REQUEST_ID_AMOUNT - 1] = requestId;
     }
     xSemaphoreGive(item->mutex);
+    xSemaphoreGive(writeDeleteMutex);
 }
 
 PriorityItem* hashFind(const int priority) {
@@ -61,11 +64,13 @@ PriorityItem* hashFind(const int priority) {
 }
 
 void hashDeleteItem(const int priority) {
+    xSemaphoreTake(writeDeleteMutex, portMAX_DELAY);
     PriorityItem *item;
 
     HASH_FIND_INT(table, &priority, item);
 
-    if (item != NULL) {
+    // We won't delete items that have sub items inside (To avoid delete after write)
+    if (item != NULL && item->count == 0) {
         SemaphoreHandle_t mutex = item->mutex;
         xSemaphoreTake(mutex, portMAX_DELAY);
         HASH_DEL(table, item);
@@ -73,4 +78,13 @@ void hashDeleteItem(const int priority) {
         xSemaphoreGive(mutex);
         vSemaphoreDelete(mutex); // We have to release before deleting for rtos purposes
     }
+    xSemaphoreGive(writeDeleteMutex);
+}
+
+app_err_t hashInit(void) {
+    writeDeleteMutex = xSemaphoreCreateMutex();
+    if (writeDeleteMutex == NULL) {
+        return APP_ERR_INTERNAL;
+    }
+    return APP_OK;
 }
