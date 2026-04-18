@@ -5,18 +5,24 @@
 typedef struct {
     QueueHandle_t hqueue;
     Heap* heap;
+    SemaphoreHandle_t sem;
 } dispatcher_t;
-dispatcher_t dispatcher;
 
-void processMessage(void) {
+static dispatcher_t dispatcher;
+
+static void processMessage(void * _) {
     request_data_t msg;
     if (pdPASS == xQueueReceive(dispatcher.hqueue, &msg, portMAX_DELAY)) {
+        xSemaphoreTake(dispatcher.sem, portMAX_DELAY);
         hashAdd(msg.priority, msg.request_id);
         heapPush(dispatcher.heap, msg.request_id);
+        xSemaphoreGive(dispatcher.sem);
     }
 }
-app_err_t dispatcherInit(Heap* heap, QueueHandle_t msgQueue) {
+app_err_t dispatcherInit(Heap* heap, QueueHandle_t msgQueue, SemaphoreHandle_t controllerSem) {
     dispatcher.heap = heap;
     dispatcher.hqueue = msgQueue;
-    return APP_OK;
+    dispatcher.sem = controllerSem;
+    const bool ok = pdPASS == xTaskCreate(processMessage, "dispatcher", 128, NULL, tskIDLE_PRIORITY, NULL);
+    return ok ? APP_OK : APP_ERR_INTERNAL;
 }

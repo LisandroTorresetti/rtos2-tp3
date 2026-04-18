@@ -4,6 +4,5 @@
 #include "heap.h"
 #include "cmsis_os.h"
 
-void processMessage(void);
-app_err_t dispatcherInit(Heap* heap, QueueHandle_t msgQueue);
+app_err_t dispatcherInit(Heap* heap, QueueHandle_t msgQueue, SemaphoreHandle_t controllerSem);
 #endif //GRUPO_1_TP_3_DISPATCHER_H

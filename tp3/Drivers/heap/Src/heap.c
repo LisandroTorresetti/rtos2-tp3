@@ -10,8 +10,8 @@ void heapInit(Heap *h) {
     h->size = 0;
 }
 
-int heapPush(Heap *h, const int value) {
-    if (h->size >= HEAP_MAX) return 0;
+bool heapPush(Heap *h, const int value) {
+    if (h->size >= HEAP_MAX) return false;
 
     int i = h->size++;
     h->data[i] = value;
@@ -25,18 +25,18 @@ int heapPush(Heap *h, const int value) {
         i = parent;
     }
 
-    return 1;
+    return true;
 }
 
-int heapPop(Heap *h, int *out) {
-    if (h->size == 0) return 0;
+bool heapPop(Heap *h, int *out) {
+    if (h->size == 0) return false;
 
     *out = h->data[0];
     h->data[0] = h->data[--h->size];
 
     int i = 0;
 
-    while (1) {
+    while (true) {
         const int left = 2*i + 1;
         const int right = 2*i + 2;
         int largest = i;
@@ -53,12 +53,12 @@ int heapPop(Heap *h, int *out) {
         i = largest;
     }
 
-    return 1;
+    return true;
 }
 
-int heapPeek(const Heap *h, int *out) {
-    if (h->size == 0) return 0;
+bool heapPeek(const Heap *h, int *out) {
+    if (h->size == 0) return false;
 
     *out = h->data[0];
-    return 1;
+    return true;
 }
