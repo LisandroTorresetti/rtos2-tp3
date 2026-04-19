@@ -159,7 +159,7 @@ static uint16_t findCharIndex(char *pstring, char charToFind, uint16_t max) {
 
 app_err_t uart_send(char* pstring, uint16_t size) {
 	errorIfNeeded(pstring);
-	uint16_t i = findCharIndex(pstring, '\0', size);
+	uint16_t i = findCharIndex(pstring, '\0', size + 5);
 	return (HAL_OK == HAL_UART_Transmit(&UartHandle, pstring, i < size ? i : size, TIMEOUT)) ? APP_OK : APP_ERR_INTERNAL;
 }
 
@@ -170,10 +170,10 @@ app_err_t uart_receive(char* pstring, uint16_t size) {
 
 app_err_t uart_init() {
 	UartHandle.Instance = USART2;
-	UartHandle.Init.BaudRate = 9600;
-	UartHandle.Init.WordLength = UART_WORDLENGTH_9B;
+	UartHandle.Init.BaudRate = 115200;
+	UartHandle.Init.WordLength = UART_WORDLENGTH_8B;
 	UartHandle.Init.StopBits = UART_STOPBITS_1;
-	UartHandle.Init.Parity = UART_PARITY_ODD;
+	UartHandle.Init.Parity = UART_PARITY_NONE;
 	UartHandle.Init.HwFlowCtl = UART_HWCONTROL_NONE;
 	UartHandle.Init.Mode = UART_MODE_TX_RX;
 	UartHandle.Init.OverSampling = UART_OVERSAMPLING_16;

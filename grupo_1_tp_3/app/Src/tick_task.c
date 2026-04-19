@@ -33,7 +33,6 @@ static void sendTickMessage(void) {
 
 static void task_ticks(void* _) {
 	TickType_t last_wake_time = xTaskGetTickCount();
-	const TickType_t frequency = pdMS_TO_TICKS(TICK_TASK_PERIOD_MS);
 
 	sendTickMessage();
 	while(1) {
@@ -48,7 +47,7 @@ static void task_ticks(void* _) {
 
 app_err_t tickTaskInit(SemaphoreHandle_t sem) {
 	tasks.sem = sem;
-	if (pdPASS != xTaskCreate(task_ticks, "tick_task", 128, NULL, tskIDLE_PRIORITY + 20, NULL)) {
+	if (pdPASS != xTaskCreate(task_ticks, "tick_task", 512, NULL, tskIDLE_PRIORITY + 5, NULL)) {
 		return APP_ERR_INTERNAL;
 	}
 	return APP_OK;

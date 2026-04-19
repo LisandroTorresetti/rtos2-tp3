@@ -101,10 +101,6 @@ int main(void)
 
   /* USER CODE BEGIN RTOS_MUTEX */
   /* add mutexes, ... */
-  app_err_t err = app_init();
-  if (err != APP_OK) {
-	  while(1);
-  }
   /* USER CODE END RTOS_MUTEX */
 
   /* USER CODE BEGIN RTOS_SEMAPHORES */
@@ -126,6 +122,10 @@ int main(void)
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
+  app_err_t err = app_init();
+  if (err != APP_OK) {
+	  while(1);
+  }
   /* USER CODE END RTOS_THREADS */
 
   /* Start scheduler */
