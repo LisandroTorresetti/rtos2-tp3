@@ -5,6 +5,9 @@
 
 #define UART_BUFFER_SIZE 128
 #define timeout (portMAX_DELAY)
+#define USE_INTERRUPTS 0
+
+#if USE_INTERRUPTS
 
 typedef struct {
 	uint8_t buffer[UART_BUFFER_SIZE];
@@ -128,3 +131,77 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) {
 		}
 	}
 }
+
+#else
+#include "stm32f4xx_hal.h"
+#include "string.h"
+#include <stdio.h>
+#include <stdbool.h>
+static UART_HandleTypeDef UartHandle;
+const uint32_t TIMEOUT = 3000;
+static void errorIfNeeded(void* delay) {
+	if (delay == NULL) {
+		Error_Handler();
+	}
+}
+static uint16_t findCharIndex(char *pstring, char charToFind, uint16_t max) {
+	uint16_t i = 0;
+	uint8_t actual = pstring[i];
+	while (actual != charToFind) {
+		i++;
+		actual = pstring[i];
+		if (i >= max) {
+			Error_Handler();
+		}
+	}
+	return i;
+}
+
+app_err_t uart_send(char* pstring, uint16_t size) {
+	errorIfNeeded(pstring);
+	uint16_t i = findCharIndex(pstring, '\0', size);
+	return (HAL_OK == HAL_UART_Transmit(&UartHandle, pstring, i < size ? i : size, TIMEOUT)) ? APP_OK : APP_ERR_INTERNAL;
+}
+
+app_err_t uart_receive(char* pstring, uint16_t size) {
+	errorIfNeeded(pstring);
+	return (HAL_OK == HAL_UART_Receive(&UartHandle, pstring, size, TIMEOUT)) ? APP_OK : APP_ERR_INTERNAL;
+}
+
+app_err_t uart_init() {
+	UartHandle.Instance = USART2;
+	UartHandle.Init.BaudRate = 9600;
+	UartHandle.Init.WordLength = UART_WORDLENGTH_9B;
+	UartHandle.Init.StopBits = UART_STOPBITS_1;
+	UartHandle.Init.Parity = UART_PARITY_ODD;
+	UartHandle.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+	UartHandle.Init.Mode = UART_MODE_TX_RX;
+	UartHandle.Init.OverSampling = UART_OVERSAMPLING_16;
+	bool status = HAL_UART_Init(&UartHandle) == HAL_OK;
+	if (status) {
+		char uart_json[256];
+
+		snprintf(uart_json, sizeof(uart_json),
+			"\r\033[2J{"
+			"\"BaudRate\":%ld,"
+			"\"WordLength\":\"%ld\","
+			"\"StopBits\":\"%ld\","
+			"\"Parity\":\"%ld\","
+			"\"HwFlowCtl\":\"%ld\","
+			"\"Mode\":\"%ld\","
+			"\"Instance\":\"%s\""
+			"}\n",
+			UartHandle.Init.BaudRate,
+			UartHandle.Init.WordLength,
+			UartHandle.Init.StopBits,
+			UartHandle.Init.Parity,
+			UartHandle.Init.HwFlowCtl,
+			UartHandle.Init.Mode,
+			"USART2"
+		);
+		uint8_t i = findCharIndex(uart_json, '\n', 256);
+		uart_send(uart_json, i+1);
+	};
+	return status ? APP_OK : APP_ERR_INTERNAL;
+}
+#endif
