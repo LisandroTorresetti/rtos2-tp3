@@ -30,18 +30,16 @@ app_err_t app_init() {
 	if (APP_OK != hashInit()) {
 		Error_Handler();
 	}
-/*
 	if (APP_OK != readerInit(hqueue)) {
 		Error_Handler();
 	}
-	*/
+
 	if (APP_OK != dispatcherInit(&heap, hqueue, controllerSem)) {
 		Error_Handler();
 	}
-	/*
 	if (APP_OK != processorInit(&heap, controllerSem, writeSem)) {
 		Error_Handler();
-	}*/
+	}
 	return tickTaskInit(writeSem);
 }
 
