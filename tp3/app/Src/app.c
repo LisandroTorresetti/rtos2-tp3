@@ -39,7 +39,6 @@ app_err_t app_init() {
 	if (APP_OK != processorInit(&heap, controllerSem, writeSem)) {
 		Error_Handler();
 	}
-	task_ticks(0);
-	return APP_OK;
+	return tickTaskInit(writeSem);
 }
 
