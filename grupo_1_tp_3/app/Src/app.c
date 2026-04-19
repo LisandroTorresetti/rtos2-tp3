@@ -18,7 +18,7 @@
 static SemaphoreHandle_t writeSem;
 static SemaphoreHandle_t controllerSem;
 static Heap heap;
-static QueueHandle_t hqueue
+static QueueHandle_t hqueue;
 app_err_t app_init() {
 	if (APP_OK != uart_init()) {
 		Error_Handler();
