@@ -11,12 +11,14 @@ typedef struct {
 static dispatcher_t dispatcher;
 
 static void processMessage(void * _) {
-    request_data_t msg;
-    if (pdPASS == xQueueReceive(dispatcher.hqueue, &msg, portMAX_DELAY)) {
-        xSemaphoreTake(dispatcher.sem, portMAX_DELAY);
-        hashAdd(msg.priority, msg.request_id);
-        heapPush(dispatcher.heap, msg.request_id);
-        xSemaphoreGive(dispatcher.sem);
+    while (true) {
+        request_data_t msg;
+        if (pdPASS == xQueueReceive(dispatcher.hqueue, &msg, portMAX_DELAY)) {
+            xSemaphoreTake(dispatcher.sem, portMAX_DELAY);
+            hashAdd(msg.priority, msg.request_id);
+            heapPush(dispatcher.heap, msg.request_id);
+            xSemaphoreGive(dispatcher.sem);
+        }
     }
 }
 app_err_t dispatcherInit(Heap* heap, QueueHandle_t msgQueue, SemaphoreHandle_t controllerSem) {
