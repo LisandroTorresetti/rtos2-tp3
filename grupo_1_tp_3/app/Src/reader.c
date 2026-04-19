@@ -14,13 +14,14 @@ static reader_t reader;
 static char msgRead[256];
 
 static void processMessage(void * _) {
-    char mander;
+    char manders[1] = {0};
     size_t msgLen = 0;
     while (true) {
         bool done = false;
         bool append = false;
         while (!done) {
-            uart_receive(&mander, 1);
+            uart_receive(manders, 1);
+            char mander = manders[0];
             if (mander == '{') {
                 append = true;
                 msgLen = 0;
@@ -55,6 +56,6 @@ static void processMessage(void * _) {
 }
 app_err_t readerInit(QueueHandle_t msgQueue) {
     reader.hqueue = msgQueue;
-    const bool ok = pdPASS == xTaskCreate(processMessage, "reader", 128, NULL, tskIDLE_PRIORITY, NULL);
+    const bool ok = pdPASS == xTaskCreate(processMessage, "reader", 512, NULL, tskIDLE_PRIORITY, NULL);
     return ok ? APP_OK : APP_ERR_INTERNAL;
 }

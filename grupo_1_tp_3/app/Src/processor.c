@@ -59,6 +59,6 @@ app_err_t processorInit(Heap* heap, SemaphoreHandle_t sem, SemaphoreHandle_t sen
     processor.heap = heap;
     processor.sem = sem;
     processor.sendingSem = sendingSem;
-    const bool ok = pdPASS == xTaskCreate(processMessage, "processor", 128, NULL, tskIDLE_PRIORITY, NULL);
+    const bool ok = pdPASS == xTaskCreate(processMessage, "processor", 512, NULL, tskIDLE_PRIORITY, NULL);
     return ok ? APP_OK : APP_ERR_INTERNAL;
 }

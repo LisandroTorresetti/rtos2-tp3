@@ -40,7 +40,7 @@ static void task_ticks(void* _) {
 		vTaskDelayUntil(&last_wake_time, INITIAL_TIME_SLEEP);
 		xSemaphoreTake(tasks.sem, portMAX_DELAY);
 		TickType_t currentTime = xTaskGetTickCount();
-		vTaskDelayUntil(&last_wake_time, MAX_TIME_PROCESSING_MESSAGE_MS - (currentTime - last_wake_time));
+		vTaskDelayUntil(&last_wake_time, pdMS_TO_TICKS(MAX_TIME_PROCESSING_MESSAGE_MS) - (currentTime - last_wake_time));
 		sendTickMessage();
 		xSemaphoreGive(tasks.sem);
   }
@@ -48,7 +48,7 @@ static void task_ticks(void* _) {
 
 app_err_t tickTaskInit(SemaphoreHandle_t sem) {
 	tasks.sem = sem;
-	if (pdPASS != xTaskCreate(task_ticks, "tick_task", 128, NULL, tskIDLE_PRIORITY, NULL)) {
+	if (pdPASS != xTaskCreate(task_ticks, "tick_task", 128, NULL, tskIDLE_PRIORITY + 20, NULL)) {
 		return APP_ERR_INTERNAL;
 	}
 	return APP_OK;

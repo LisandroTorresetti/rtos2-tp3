@@ -37,7 +37,7 @@ void hashAdd(int priority, uint16_t requestId) {
     if (item == NULL) {
         item = sallocItem();
         if (item == NULL) return; // ToDO handle scenario for item not being able to be inserted in the hash
-        item->mutex = xSemaphoreCreateMutex();
+        item->mutex = xSemaphoreCreateBinary();
         if (item->mutex == NULL) return; // ToDO handle scenario for item not being able to be inserted in the hash
 
         item->priority = priority;
@@ -82,7 +82,7 @@ void hashDeleteItem(const int priority) {
 }
 
 app_err_t hashInit(void) {
-    writeDeleteMutex = xSemaphoreCreateMutex();
+    writeDeleteMutex = xSemaphoreCreateBinary();
     if (writeDeleteMutex == NULL) {
         return APP_ERR_INTERNAL;
     }

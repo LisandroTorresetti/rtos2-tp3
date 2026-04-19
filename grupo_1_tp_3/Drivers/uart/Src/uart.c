@@ -59,6 +59,7 @@ static uint8_t ringPop(ring_buffer_t *rb) {
 
 app_err_t uart_send(char* pstring, uint16_t size) {
 	for (uint16_t i = 0; i < size; i++) {
+		if (pstring[i] == 0x00) break;
 
 		if (xSemaphoreTake(txSem, timeout) != pdPASS) {
 			return APP_ERR_INTERNAL; // timeout waiting for space

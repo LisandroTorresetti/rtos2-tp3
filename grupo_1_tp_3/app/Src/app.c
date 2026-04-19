@@ -8,8 +8,8 @@
 #include "reader.h"
 #include "tick_task.h"
 #include "uart.h"
-
-#define QUEUE_MESSAGE_SIZE 1024 // Define msg size
+#include "dto.h"
+#define QUEUE_MESSAGE_SIZE (sizeof(request_data_t)) // Define msg size
 #define QUEUE_LENGTH 50
 
 app_err_t app_init() {
@@ -30,15 +30,18 @@ app_err_t app_init() {
 	if (APP_OK != hashInit()) {
 		Error_Handler();
 	}
+/*
 	if (APP_OK != readerInit(hqueue)) {
 		Error_Handler();
 	}
+	*/
 	if (APP_OK != dispatcherInit(&heap, hqueue, controllerSem)) {
 		Error_Handler();
 	}
+	/*
 	if (APP_OK != processorInit(&heap, controllerSem, writeSem)) {
 		Error_Handler();
-	}
+	}*/
 	return tickTaskInit(writeSem);
 }
 

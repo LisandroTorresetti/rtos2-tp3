@@ -25,6 +25,6 @@ app_err_t dispatcherInit(Heap* heap, QueueHandle_t msgQueue, SemaphoreHandle_t c
     dispatcher.heap = heap;
     dispatcher.hqueue = msgQueue;
     dispatcher.sem = controllerSem;
-    const bool ok = pdPASS == xTaskCreate(processMessage, "dispatcher", 128, NULL, tskIDLE_PRIORITY, NULL);
+    const bool ok = pdPASS == xTaskCreate(processMessage, "dispatcher", 512, NULL, tskIDLE_PRIORITY, NULL);
     return ok ? APP_OK : APP_ERR_INTERNAL;
 }
