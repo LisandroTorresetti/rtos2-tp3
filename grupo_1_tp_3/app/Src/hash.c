@@ -36,11 +36,20 @@ void hashAdd(int priority, uint16_t requestId) {
 
     if (item == NULL) {
         item = sallocItem();
-        if (item == NULL) return; // ToDO handle scenario for item not being able to be inserted in the hash
+        if (item == NULL) {
+        	xSemaphoreGive(writeDeleteMutex);
+        	return; // ToDO handle scenario for item not being able to be inserted in the hash
+        }
+        memset(item, 0, sizeof(PriorityItem));
         item->mutex = xSemaphoreCreateBinary();
-        if (item->mutex == NULL) return; // ToDO handle scenario for item not being able to be inserted in the hash
+        xSemaphoreGive(item->mutex);
+        if (item->mutex == NULL) {
+        	xSemaphoreGive(writeDeleteMutex);
+        	return; // ToDO handle scenario for item not being able to be inserted in the hash
+        }
 
         item->priority = priority;
+        item->count = 0;
         HASH_ADD_INT(table, priority, item);
     }
     xSemaphoreTake(item->mutex, portMAX_DELAY);
@@ -57,7 +66,7 @@ void hashAdd(int priority, uint16_t requestId) {
     xSemaphoreGive(writeDeleteMutex);
 }
 
-PriorityItem* hashFind(const int priority) {
+PriorityItem* hashFind(int priority) {
     PriorityItem *item;
     HASH_FIND_INT(table, &priority, item);
     return item;
@@ -86,5 +95,6 @@ app_err_t hashInit(void) {
     if (writeDeleteMutex == NULL) {
         return APP_ERR_INTERNAL;
     }
+    xSemaphoreGive(writeDeleteMutex);
     return APP_OK;
 }

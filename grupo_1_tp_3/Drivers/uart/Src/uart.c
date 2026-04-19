@@ -3,7 +3,7 @@
 #include "main.h"
 #include "stm32f4xx.h"
 
-#define UART_BUFFER_SIZE 128
+#define UART_BUFFER_SIZE 300
 #define timeout (portMAX_DELAY)
 #define USE_INTERRUPTS 1
 

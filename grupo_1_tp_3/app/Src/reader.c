@@ -5,6 +5,7 @@
 
 #include "dto.h"
 #include "uart.h"
+#include "messages.h"
 
 typedef struct {
     QueueHandle_t hqueue;
@@ -37,12 +38,14 @@ static void processMessage(void * _) {
         }
         request_data_t msg = { 0 };
         msgRead[msgLen] = 0x00;
+        uint16_t type;
         int parsed = sscanf(msgRead,
-                    "{type:%*hu,id:%hu,priority:%hu}",
+                    "{type:%hu,id:%hu,priority:%hu}",
+					&type,
                     &msg.request_id,
                     &msg.priority);
 
-        if (parsed != 3) {
+        if (parsed != 3 || (msg_type_t)type != REQUEST_MSG) {
             continue; // invalid message
         }
         if (pdPASS != xQueueSend(reader.hqueue, &msg, portMAX_DELAY)) {
@@ -56,6 +59,6 @@ static void processMessage(void * _) {
 }
 app_err_t readerInit(QueueHandle_t msgQueue) {
     reader.hqueue = msgQueue;
-    const bool ok = pdPASS == xTaskCreate(processMessage, "reader", 512, NULL, tskIDLE_PRIORITY, NULL);
+    const bool ok = pdPASS == xTaskCreate(processMessage, "reader", 512, NULL, tskIDLE_PRIORITY +1, NULL);
     return ok ? APP_OK : APP_ERR_INTERNAL;
 }

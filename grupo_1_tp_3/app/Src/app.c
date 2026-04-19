@@ -14,6 +14,7 @@
 #define useReader 1
 #define useDispatcher 1
 #define useProcessor 1
+#define useTickTask 1
 
 static SemaphoreHandle_t writeSem;
 static SemaphoreHandle_t controllerSem;
@@ -58,6 +59,10 @@ app_err_t app_init() {
 		Error_Handler();
 	}
 #endif
+#if useTickTask
 	return tickTaskInit(writeSem);
+#else
+	return APP_OK;
+#endif
 }
 

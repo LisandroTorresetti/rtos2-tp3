@@ -16,7 +16,7 @@ static void processMessage(void * _) {
         if (pdPASS == xQueueReceive(dispatcher.hqueue, &msg, portMAX_DELAY)) {
             xSemaphoreTake(dispatcher.sem, portMAX_DELAY);
             hashAdd(msg.priority, msg.request_id);
-            heapPush(dispatcher.heap, msg.request_id);
+            heapPush(dispatcher.heap, msg.priority);
             xSemaphoreGive(dispatcher.sem);
         }
     }

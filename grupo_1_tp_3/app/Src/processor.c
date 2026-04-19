@@ -19,7 +19,7 @@ static char buffer[40 + ZERO_AMOUNT_FRAME];
 
 static size_t createMsg(int requestId) {
     buffer[0] = 0x00;
-    size_t str_len = sprintf(buffer, "{type:2,requestId:%d", requestId);
+    size_t str_len = sprintf(buffer, "{type:2,requestId:%d,frame:", requestId);
     char *pwrite = buffer;
     pwrite += str_len;
     memset(pwrite , '0', 256);
