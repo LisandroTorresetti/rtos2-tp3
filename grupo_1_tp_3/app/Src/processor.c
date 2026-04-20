@@ -15,7 +15,7 @@ typedef struct {
 } processor_t;
 static processor_t processor;
 
-static char buffer[40 + ZERO_AMOUNT_FRAME];
+static char buffer[70 + ZERO_AMOUNT_FRAME];
 
 static size_t createMsg(int requestId) {
     buffer[0] = 0x00;
@@ -50,8 +50,8 @@ static void processMessage(void* _) {
             hashDeleteItem(msg);
         }
         size_t size = createMsg(requestId);
-        uart_send(buffer, size);
         xSemaphoreGive(processor.sendingSem);
+        uart_send(buffer, size);
     }
 }
 

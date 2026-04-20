@@ -59,6 +59,6 @@ static void processMessage(void * _) {
 }
 app_err_t readerInit(QueueHandle_t msgQueue) {
     reader.hqueue = msgQueue;
-    const bool ok = pdPASS == xTaskCreate(processMessage, "reader", 512, NULL, tskIDLE_PRIORITY +1, NULL);
+    const bool ok = pdPASS == xTaskCreate(processMessage, "reader", 512, NULL, tskIDLE_PRIORITY, NULL);
     return ok ? APP_OK : APP_ERR_INTERNAL;
 }
