@@ -1,7 +1,7 @@
 #include "messages.h"
 #include <stdio.h>
 
-static char* TICK_MSG_TEMPLATE = "{\"id\":\"%d\",\"stamp\":%d}";
+static char* TICK_MSG_TEMPLATE = "{id:%d,stamp:%d}";
 
 bool is_valid_message_type(uint8_t msg_type) {
 	return msg_type >= TICK_MSG && msg_type <= RESPONSE_MSG;
